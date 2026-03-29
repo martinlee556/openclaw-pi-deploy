@@ -1,0 +1,19 @@
+services:
+  openclaw:
+    image: ${OPENCLAW_IMAGE:?请先在 .env 中设置 OPENCLAW_IMAGE}
+    container_name: openclaw
+    restart: unless-stopped
+    ports:
+      - "${OPENCLAW_PORT_HTTP:-8080}:8080"
+      - "${OPENCLAW_PORT_STREAM:-9000}:9000"
+    environment:
+      TZ: ${TZ:-Asia/Taipei}
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
