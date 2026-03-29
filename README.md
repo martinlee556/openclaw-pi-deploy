@@ -2,12 +2,14 @@
 
 本仓库用于在 **Raspberry Pi 4B** 上通过 **Docker + Docker Compose** 快速部署 OpenClaw。
 
+> 重要：`openclaw-pi-deploy` 是 **GitHub 仓库名**，不是容器镜像名。请在 `.env` 中填写真实可拉取的镜像地址。
 > 说明：本模板默认你使用 64 位 Raspberry Pi OS（Bookworm 或更新版本），并且设备可以访问互联网。
 
 ## 目录结构
 
 ```text
 .
+├── .env.example
 ├── docker-compose.yml
 ├── README.md
 └── scripts
