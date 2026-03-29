@@ -1,13 +1,15 @@
+version: "3.9"
+
 services:
   openclaw:
-    image: ${OPENCLAW_IMAGE:?请先在 .env 中设置 OPENCLAW_IMAGE}
+    image: ghcr.io/martinlee556/openclaw:latest
     container_name: openclaw
     restart: unless-stopped
     ports:
-      - "${OPENCLAW_PORT_HTTP:-8080}:8080"
-      - "${OPENCLAW_PORT_STREAM:-9000}:9000"
+      - "8080:8080"
+      - "9000:9000"
     environment:
-      TZ: ${TZ:-Asia/Taipei}
+      TZ: Asia/Taipei
     volumes:
       - ./data:/app/data
       - ./config:/app/config

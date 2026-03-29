@@ -3,6 +3,7 @@
 本仓库用于在 **Raspberry Pi 4B** 上通过 **Docker + Docker Compose** 快速部署 OpenClaw。
 
 > 重要：`openclaw-pi-deploy` 是 **GitHub 仓库名**，不是容器镜像名。请在 `.env` 中填写真实可拉取的镜像地址。
+> 说明：本模板默认你使用 64 位 Raspberry Pi OS（Bookworm 或更新版本），并且设备可以访问互联网。
 
 ## 目录结构
 
@@ -28,83 +29,85 @@ git clone <你的仓库地址> openclaw-pi-deploy
 cd openclaw-pi-deploy
 ```
 
-### 1.2 配置镜像与端口（必做）
-
-```bash
-cp .env.example .env
-nano .env
-```
-
-至少要修改：
-
-```env
-OPENCLAW_IMAGE=ghcr.io/<你的账号>/<你的-openclaw-镜像>:latest
-```
-
-> 不要写成 `ghcr.io/martinlee556/openclaw-pi-deploy:latest`，那是仓库名，不是可用镜像。
-
-### 1.3 执行环境安装脚本
+### 1.2 执行环境安装脚本
 
 ```bash
 ./scripts/install.sh
 ```
 
-### 1.4 启动服务
+安装脚本会完成以下操作：
+- 检查系统是否为 Linux
+- 安装 Docker（如未安装）
+- 安装 Docker Compose 插件（如未安装）
+- 将当前用户加入 `docker` 用户组（首次安装后建议重新登录）
 
-```bash
-./scripts/start.sh
-```
+### 1.3 一键部署（可选）
 
-`start.sh` 会检查：
-- `.env` 是否存在
-- `OPENCLAW_IMAGE` 是否已填写真实值
-- 镜像是否可拉取
-
-### 1.5 一键部署（可选）
+如果你希望在拉取代码后直接部署，可以使用：
 
 ```bash
 ./scripts/deploy.sh
 ```
 
-## 2. 停止方法
+该命令会依次执行安装检查和服务启动。
+
+## 2. 启动方法
+
+```bash
+./scripts/start.sh
+```
+
+或直接使用：
+
+```bash
+docker compose up -d
+```
+
+## 3. 停止方法
 
 ```bash
 ./scripts/stop.sh
 ```
 
-## 3. 查看状态方法
+或直接使用：
+
+```bash
+docker compose down
+```
+
+## 4. 查看状态方法
 
 ```bash
 ./scripts/status.sh
 ```
 
-## 4. 常见错误与处理
+状态脚本会输出：
+- 当前容器运行状态
+- 最近日志（默认 100 行）
 
-### 4.1 `the attribute 'version' is obsolete`
+## 5. 常用维护命令
 
-本模板已移除 `version` 字段。如果你还看到这个警告，说明你当前目录下仍是旧版 `docker-compose.yml`，请执行：
+更新镜像并重建：
 
 ```bash
-git pull
-cat docker-compose.yml
+docker compose pull
+docker compose up -d --force-recreate
 ```
 
-确认文件开头是 `services:`，而不是 `version: "3.9"`。
+查看实时日志：
 
-### 4.2 `error from registry: denied` 或 `not found`
+```bash
+docker compose logs -f
+```
 
-这通常表示镜像名不正确或无权限：
+## 6. 配置说明
 
-1. 检查 `.env` 的 `OPENCLAW_IMAGE`
-2. 私有 GHCR 镜像先登录：
-   ```bash
-   echo <GHCR_TOKEN> | docker login ghcr.io -u <GHCR_USERNAME> --password-stdin
-   ```
-3. 手动验证镜像：
-   ```bash
-   docker pull "$OPENCLAW_IMAGE"
-   ```
-4. 再执行：
-   ```bash
-   ./scripts/start.sh
-   ```
+- 默认服务名：`openclaw`
+- 默认映射端口：
+  - `8080:8080`
+  - `9000:9000`
+- 数据卷：
+  - `./data:/app/data`
+  - `./config:/app/config`
+
+请根据你实际的 OpenClaw 镜像地址、端口和配置文件路径修改 `docker-compose.yml`。
